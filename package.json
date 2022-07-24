@@ -4,18 +4,20 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "dependencies": {
-    "axios": "^0.27.2",
-    "express": "^4.18.1",
-    "joi": "^17.6.0",
-    "nodemon": "^2.0.19"
-  },
-  "devDependencies": {},
   "scripts": {
     "start": "node ./src/index.js",
-    "dev": "nodomon ./src/index.js"
+    "dev": "nodemon ./src/index.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "joi": "^17.6.0",
+    "nodemon": "^2.0.19",
+    "pg": "^8.7.3"
+  }
 }
