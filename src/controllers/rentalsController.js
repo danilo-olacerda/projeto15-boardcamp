@@ -1,9 +1,20 @@
+import dayjs from "dayjs";
 import client from "../db/db.js";
 
-async function getRentals (_, res){
+async function getRentals (req, res){
+
+    const { customerId } = req.query;
 
     try {
 
+        if (customerId){
+                
+                const rentals = await client.query('SELECT * FROM rentals WHERE "customerId" = $1', [customerId]);
+                res.send(rentals.rows);
+                return;
+    
+        } else {
+            
         let rentals = await client.query("SELECT * FROM rentals");
         for (let rental of rentals.rows) {
 
@@ -29,7 +40,8 @@ async function getRentals (_, res){
             }
             
         }
-        res.send(rentals.rows);
+            res.send(rentals.rows);
+    }
         
     } catch (error) {
 
@@ -55,5 +67,68 @@ async function createRental(req, res){
     }
 }
 
+async function returnRental(req, res){
+    
+        const rentalId = res.locals.rentalId;
+        const returnDate = dayjs().format('YYYY-MM-DD');
+        const rentDate = res.locals.rentDate;
+        const daysRented = res.locals.daysRented;
+        const pricePerDay = res.locals.pricePerDay.rows[0].pricePerDay;
 
-export { getRentals, createRental };
+        const days = dayjs(returnDate).valueOf() - dayjs(rentDate).valueOf();
+        const delayFee = Math.round(days/86400000) * pricePerDay;
+    
+        try {
+    
+            if (days > daysRented){
+                
+                await client.query('UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3', [returnDate, delayFee, rentalId]);
+                res.sendStatus(200);
+                return;
+
+            } else {
+
+                await client.query('UPDATE rentals SET "returnDate" = $1 WHERE id = $2', [returnDate, rentalId]);
+                res.sendStatus(200);
+                return;
+
+            }
+    
+        } catch (error) {
+    
+            res.send(error);
+    
+        }
+    
+}
+
+async function deleteRental(req, res){
+
+    const rentId = req.params.id;
+    const rentExists = await client.query('SELECT * FROM rentals WHERE id = $1', [rentId]);
+
+    if (rentExists.rowCount===0){
+        res.sendStatus(404);
+        return;
+    }
+
+    if (!rentExists.rows[0].returnDate){
+        res.sendStatus(400);
+        return;
+    }
+
+    try {
+        
+        await client.query('DELETE FROM rentals WHERE id = $1', [rentId]);
+        res.sendStatus(200);
+        return;
+
+    } catch (error) {
+        
+        res.send(error);
+
+    }
+}
+
+
+export { getRentals, createRental, returnRental, deleteRental };

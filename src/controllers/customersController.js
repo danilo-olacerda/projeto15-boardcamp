@@ -9,8 +9,9 @@ async function getCustomers(req, res){
         
         if (cpf){
 
-            const customers = await client.query('SELECT * FROM customers WHERE cpf=left($1, $2)', [cpf, cpf.lenght]);
-            res.send(customers.rows);
+            let { rows: customers } = await client.query('SELECT * FROM customers');
+            customers = customers.filter(customer => customer.cpf.startsWith(cpf));
+            res.send(customers);
 
         } else if (id){
 
@@ -43,7 +44,7 @@ async function createCustomer(req, res){
 
     try {
 
-        await client.query(`INSERT INTO "customers" (name, phone, cpf, birthday) VALUES ($1, $2, $3, $4);`, [newCustomer.name, newCustomer.phone, newCustomer.cpf, newCustomer.birthday]);
+        await client.query(`INSERT INTO customers (name, phone, cpf, birthday) VALUES ($1, $2, $3, $4);`, [newCustomer.name, newCustomer.phone, newCustomer.cpf, newCustomer.birthday]);
         res.sendStatus(201);
 
     } catch (error) {
