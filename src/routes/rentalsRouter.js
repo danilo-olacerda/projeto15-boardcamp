@@ -10,5 +10,6 @@ router.post('/rentals', validateRental, createRental);
 router.post('/rentals/:id/return', validateRentalReturn, returnRental);
 router.delete('/rentals/:id', deleteRental);
 router.get('/rentals?customerId', getRentals);
+router.get('/rentals?gameId', getRentals);
 
 export default router;
