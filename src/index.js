@@ -12,5 +12,5 @@ app.use(cors());
 app.use(routes);
 
 app.listen(process.env.PORT, ()=> {
-    console.log('Server online at 5000');
+    console.log(`Server online at ${process.env.PORT}`);
 })
